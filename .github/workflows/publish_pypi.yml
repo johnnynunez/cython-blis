@@ -2,6 +2,7 @@
 # triggers on publication.
 # The expected workflow is to create a draft release and let the wheels
 # upload, and then hit 'publish', which uploads to PyPi.
+name: Publish Pypi
 
 on:
   release:
