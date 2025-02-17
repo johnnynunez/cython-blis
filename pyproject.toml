@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "setuptools>=42",
-    "cython>=0.25",
+    "cython>=0.25, <3.0",
     "numpy>=1.19.3,<3.0.0",
     "hypothesis>=4.0.0,<7.0.0",
 ]
