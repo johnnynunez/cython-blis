@@ -14,7 +14,15 @@ jobs:
     strategy:
       matrix:
         # macos-13 is an intel runner, macos-14 is apple silicon
-        os: [ubuntu-latest, windows-2022, macos-13, macos-14, ubuntu-24.04-arm]
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, macos-14, macos-13, windows-latest ]  # Use specific versions for clarity
+        arch: [ x86_64, arm64 ]
+        exclude:
+          - os: ubuntu-24.04-arm  # No need to specify arch, it's already implicit
+            arch: x86_64  # Exclude x86_64 on ARM
+          - os: macos-14   # Exclude macOS 14 (Sonoma)
+            arch: x86_64   # Exclude x86_64 explicitly
+          - os: macos-13  # Exclude macOS 13 (Ventura) - arm64
+            arch: arm64   # Exclude arm64 on macOS 13
 
     steps:
       # See https://cibuildwheel.pypa.io/en/1.x/cpp_standards/
@@ -31,9 +39,9 @@ jobs:
       - name: Debug env
         run: env
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.21.3
+        uses: pypa/cibuildwheel@v2.22.0
         env:
-          CIBW_ARCHS_LINUX: auto
+          CIBW_ARCHS_MACOS: ${{ matrix.arch }}
           DISTUTILS_USE_SDK: 1
           MSSdk: 1
           AR: llvm-ar
@@ -41,13 +49,14 @@ jobs:
           CC: clang
           RANLIB: echo
           CIBW_BUILD_VERBOSITY: 5
+          CIBW_SKIP: "cp*-manylinux_i686 cp*-musllinux* cp*-win32"
         with:
           package-dir: .
           output-dir: wheelhouse
           config-file: "{package}/pyproject.toml"
       - uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          name: cibw-wheels-${{ matrix.os }}-${{ matrix.arch }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
