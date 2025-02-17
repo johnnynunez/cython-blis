@@ -49,7 +49,6 @@ jobs:
           CC: clang
           RANLIB: echo
           CIBW_BUILD_VERBOSITY: 5
-          CIBW_SKIP: "cp*-manylinux_i686 cp*-musllinux* cp*-win32"
         with:
           package-dir: .
           output-dir: wheelhouse
